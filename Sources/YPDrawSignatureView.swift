@@ -147,12 +147,19 @@ final public class YPDrawSignatureView: UIView {
     
     // Save the Signature as an UIImage
     public func getSignature(scale:CGFloat = 1) -> UIImage? {
-        if !doesContainSignature { return nil }
+        self.delegate?.debugLog("Starting getSignature")
+        if !doesContainSignature {
+            self.delegate?.debugLog("does not contain signature")
+            return nil
+        }
         UIGraphicsBeginImageContextWithOptions(self.bounds.size, false, scale)
+        self.delegate?.debugLog("created UIGraphics context")
         self.strokeColor.setStroke()
         self.path.stroke()
         let signature = UIGraphicsGetImageFromCurrentImageContext()
+        self.delegate?.debugLog("gathered signature", metadata: ["has_image_data": signature != nil])
         UIGraphicsEndImageContext()
+        self.delegate?.debugLog("ended graphics context")
         return signature
     }
     
@@ -216,9 +223,12 @@ public protocol YPSignatureDelegate: class {
     func startedDrawing()
     @available(*, unavailable, renamed: "didFinish()")
     func finishedDrawing()
+
+    func debugLog(_ message: String, metadata: [String: Any])
 }
 
 extension YPSignatureDelegate {
     func didStart() {}
     func didFinish() {}
+    func debugLog(_ message: String, metadata: [String: Any]) {}
 }
